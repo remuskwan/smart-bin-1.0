@@ -10,8 +10,9 @@ export default function Home() {
   return (
     <Layout>
       <a
-        href="/recycle-item"
-        className="bg-green-400 text-white text-9xl px-20 py-10 inline-block text-center rounded-lg transition duration-500 ease-in-out transform hover:-translate-y-1 active:scale-90"
+        href="/account-prompt"
+        type="button"
+        className="bg-green-500 text-white text-9xl px-20 py-10 inline-block text-center rounded-lg transition duration-500 ease-in-out transform hover:-translate-y-1 active:scale-90"
       >
         Recycle Item
       </a>
