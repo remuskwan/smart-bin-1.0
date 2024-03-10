@@ -28,6 +28,7 @@ const OtpVerification: React.FC = () => {
       setErrorMessage("OTP needs to be 4 digits");
     } else {
       console.log(otp);
+      router.push("/recycle-item");
       setErrorMessage(null);
     }
   };

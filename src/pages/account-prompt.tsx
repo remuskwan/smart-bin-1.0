@@ -35,6 +35,10 @@ const AccountPrompt: React.FC = () => {
     }
   };
 
+  const handleNoAccount = () => {
+    router.push("/recycle-item");
+  };
+
   if (!hello.data) {
     return <div>Loading...</div>;
   }
@@ -80,6 +84,7 @@ const AccountPrompt: React.FC = () => {
           Send Code
         </button>
         <button
+          onClick={handleNoAccount}
           type="button"
           className="absolute bottom-20 right-20 mt-10 rounded-md bg-red-500 px-20 py-5 text-2xl font-semibold text-white shadow-sm hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
         >
