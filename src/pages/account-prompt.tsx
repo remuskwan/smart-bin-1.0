@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import { trpc } from "@/utils/trpc";
 import Layout from "@/components/layout/layout";
 
 export default function RecyclePage() {
+  const router = useRouter();
   const hello = trpc.hello.useQuery({ text: "client" });
   const [phoneNumber, setPhoneNumber] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -30,7 +32,7 @@ export default function RecyclePage() {
   const handleSendCode = () => {
     if (validatePhoneNumber()) {
       // Navigate to "/otp-verification" if the phone number is valid
-      window.location.href = "/otp-verification";
+      router.push("/otp-verification");
     }
   };
 
