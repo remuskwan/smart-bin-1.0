@@ -1,26 +1,26 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import { trpc } from "@/utils/trpc";
 import Layout from "@/components/layout/layout";
 
-export default function RecyclePage() {
+const AccountPrompt: React.FC = () => {
   const router = useRouter();
   const hello = trpc.hello.useQuery({ text: "client" });
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handlePhoneNumberChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    let input = event.target.value.replace(/\D/g, ""); // Remove all non-digit characters
+    let input = event.target.value.replace(/\D/g, "");
     if (input.length > 4) {
-      input = input.slice(0, 4) + " " + input.slice(4); // Insert space after 4th digit
+      input = input.slice(0, 4) + " " + input.slice(4);
     }
-    setPhoneNumber(input.slice(0, 9)); // Limit to 8 digits (plus space)
+    setPhoneNumber(input.slice(0, 9));
   };
 
-  const validatePhoneNumber = () => {
-    const digits = phoneNumber.replace(/\s/g, ""); // Remove spaces
+  const validatePhoneNumber = (): boolean => {
+    const digits = phoneNumber.replace(/\s/g, "");
     if (digits.length !== 8 || (digits[0] !== "8" && digits[0] !== "9")) {
       setErrorMessage("Please enter a valid phone number.");
       return false;
@@ -31,7 +31,6 @@ export default function RecyclePage() {
 
   const handleSendCode = () => {
     if (validatePhoneNumber()) {
-      // Navigate to "/otp-verification" if the phone number is valid
       router.push("/otp-verification");
     }
   };
@@ -56,34 +55,39 @@ export default function RecyclePage() {
               className="appearance-none bg-transparent border-none w-20 text-2xl py-4 px-4 leading-tight focus:outline-none"
               placeholder="+65"
               value="+65"
+              readOnly
             />
             <span className="text-gray-500 text-xl">|</span>
             <input
               type="tel"
               className="appearance-none bg-transparent border-none w-full text-2xl py-4 px-4 leading-tight focus:outline-none"
               placeholder="9123 4567"
-              value={phoneNumber} // Use state for value
-              onChange={handlePhoneNumberChange} // Use event handler for onChange
+              value={phoneNumber}
+              onChange={handlePhoneNumberChange}
             />
           </div>
         </div>
+        {errorMessage && (
+          <p className="mt-7 text-center text-2xl font-bold text-red-500">
+            {errorMessage}
+          </p>
+        )}
+        <button
+          onClick={handleSendCode}
+          type="button"
+          className="mt-10 mx-auto block rounded-md bg-green-500 px-20 py-5 text-2xl font-semibold text-white shadow-sm hover:bg-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
+        >
+          Send Code
+        </button>
+        <button
+          type="button"
+          className="absolute bottom-20 right-20 mt-10 rounded-md bg-red-500 px-20 py-5 text-2xl font-semibold text-white shadow-sm hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
+        >
+          No Account
+        </button>
       </div>
-      {errorMessage && (
-        <p className="mt-7  text-2xl font-bold text-red-500">{errorMessage}</p>
-      )}
-      <button
-        onClick={handleSendCode}
-        type="button"
-        className="mt-10 rounded-md bg-green-500 px-20 py-5 text-2xl font-semibold text-white shadow-sm hover:bg-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
-      >
-        Send Code
-      </button>
-      <button
-        type="button"
-        className="absolute bottom-20 right-20 mt-10 rounded-md bg-red-500 px-20 py-5 text-2xl font-semibold text-white shadow-sm hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500"
-      >
-        No Account
-      </button>
     </Layout>
   );
-}
+};
+
+export default AccountPrompt;
