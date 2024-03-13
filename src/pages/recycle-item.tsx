@@ -1,5 +1,6 @@
 import { trpc } from "@/utils/trpc";
 import Layout from "@/components/layout/layout";
+import CameraFeed from "./camera-feed";
 
 const RecycleItem: React.FC = () => {
   const hello = trpc.hello.useQuery({ text: "client" });
@@ -10,7 +11,7 @@ const RecycleItem: React.FC = () => {
 
   return (
     <Layout>
-      <h2
+      {/* <h2
         style={{
           position: "absolute",
           top: "50%",
@@ -32,7 +33,8 @@ const RecycleItem: React.FC = () => {
           left: "50%",
           transform: "translate(-50%, -50%)",
         }}
-      />
+      /> */}
+      <CameraFeed />
     </Layout>
   );
 };
