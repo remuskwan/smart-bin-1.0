@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
-const CameraFeed = () => {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [image, setImage] = useState(null);
+const CameraFeed: React.FC = () => {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [image, setImage] = useState<string | null>(null);
 
   useEffect(() => {
     const getVideo = async () => {
@@ -22,22 +23,24 @@ const CameraFeed = () => {
     getVideo();
   }, []);
 
-  const uploadImage = async (imageBlob) => {
+  const uploadImage = async (imageBlob: Blob) => {
     try {
-      const response = await fetch('https://ittyekb4bb.execute-api.ap-southeast-1.amazonaws.com/dev/sortwise-new-images/image.png', {
-        method: 'PUT',
-        body: imageBlob,
-        headers: {
-          'Content-Type': 'image/png' // or the specific type of your image
+      const response = await fetch(
+        "https://ittyekb4bb.execute-api.ap-southeast-1.amazonaws.com/dev/sortwise-new-images/image.png",
+        {
+          method: "PUT",
+          body: imageBlob,
+          headers: {
+            "Content-Type": "image/png", // or the specific type of your image
+          },
         }
-      });
+      );
       const data = await response;
-      console.log('File upload response:', data);
+      console.log("File upload response:", data);
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error("Error uploading file:", error);
     }
   };
-  
 
   const takePhoto = () => {
     if (videoRef.current && canvasRef.current) {
@@ -50,9 +53,12 @@ const CameraFeed = () => {
 
         // Convert canvas to image and then to blob
         canvasRef.current.toBlob((blob) => {
-          setImage(URL.createObjectURL(blob));
-          uploadImage(blob);
-        }, 'image/png');
+          if (blob) {
+            const objectUrl = URL.createObjectURL(blob);
+            setImage(objectUrl);
+            uploadImage(blob);
+          }
+        }, "image/png");
       }
     }
   };
@@ -68,7 +74,15 @@ const CameraFeed = () => {
         >
           Take Photo
         </button>
-        {image && <img src={image} alt="Captured frame" className="mt-4" />}
+        {image && (
+          <Image
+            src={image}
+            alt="Captured frame"
+            className="mt-4"
+            width={500}
+            height={300}
+          />
+        )}
       </div>
     </div>
   );
