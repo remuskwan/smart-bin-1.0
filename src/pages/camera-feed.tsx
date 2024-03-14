@@ -49,7 +49,7 @@ const CameraFeed: React.FC = () => {
       setUploadResponse(JSON.stringify(responseDetails)); // Set the response
     } catch (error) {
       console.error("Error uploading file:", error);
-      setUploadResponse(error.message); // Set the error
+      setUploadResponse((error as Error).message); // Set the error
     } finally {
       setUploading(false);
     }
