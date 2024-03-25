@@ -9,8 +9,10 @@ const CameraFeed: React.FC = () => {
   const [uploadResponse, setUploadResponse] = useState<React.ReactNode | null>(
     null
   );
-  const [buttonText, setButtonText] = useState("Recycle Item");
-  const [countdown, setCountdown] = useState<number | null>(null);
+  const [buttonText, setButtonText] = useState("Recycle Item"); // Toggles between Recycle Item / Recycle Another Item
+  const [countdown, setCountdown] = useState<number | null>(null); //Countdown to reset to main screen
+  const [userId, setUserId] = useState("user3"); //To be used for the userID logged in
+  const [imageUrl, setImageUrl] = useState<string | null>(null); // State Variable for showing captured image
 
   useEffect(() => {
     const getVideo = async () => {
@@ -29,45 +31,129 @@ const CameraFeed: React.FC = () => {
     getVideo();
   }, []);
 
+  //Helper function to sleep for a certain time
+  function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  //Helper function to reset feed
+  const restartVideo = async () => {
+    if (videoRef.current) {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+      });
+      videoRef.current.srcObject = mediaStream;
+    }
+  };
+
+  //If the image is removed and hidden, restart the video
+  useEffect(() => {
+    if (imageUrl === null && videoRef.current) {
+      restartVideo();
+    }
+  }, [imageUrl]);
+
   const uploadImage = async (imageBlob: Blob) => {
     setUploading(true);
+    const id = Math.random().toString(36).substring(2); // Generate a random ID
     try {
-      const response = await fetch(
-        "https://ittyekb4bb.execute-api.ap-southeast-1.amazonaws.com/dev/sortwise-new-images/image.png",
-        {
-          method: "PUT",
-          body: imageBlob,
-          headers: {
-            "Content-Type": "image/png",
-          },
-        }
+      /* 1st API to generate link for upload */
+
+      // First, get the pre-signed URL
+      const presignedResponse = await fetch(
+        `http://localhost:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png&user_id=${userId}`
       );
-      console.log("File upload response:", response);
+
+      if (!presignedResponse.ok) {
+        throw new Error(
+          `Error generating pre-signed URL: ${presignedResponse.status}`
+        );
+      }
+
+      const { url: presignedUrl, objectName: objectName } =
+        await presignedResponse.json();
+
+      console.log(presignedUrl);
+
+      /* 2nd API to upload it to AWS */
+
+      // Then, upload the file using the pre-signed URL
+      const uploadResponse = await fetch(presignedUrl, {
+        method: "PUT",
+        body: imageBlob,
+        headers: {
+          "Content-Type": "image/png",
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error(`Error uploading file: ${uploadResponse.status}`);
+      }
+
+      console.log("File upload response:", uploadResponse);
+      console.log("URL:", uploadResponse.url);
 
       const responseDetails = {
-        ok: response.ok,
-        status: response.status,
+        ok: uploadResponse.ok,
+        status: uploadResponse.status,
       };
 
+      /* 3rd API to get the inference result after 30 seconds */
+
+      const objectKey = objectName;
+      const encodedObjectKey = encodeURIComponent(objectKey);
+      const inferenceAPI = `http://localhost:8000/image/metadata/${encodedObjectKey}`;
+
+      console.log("waiting 30 seconds");
+      await sleep(30000); // 30 seconds
+      console.log("calling inference");
+
+      const inferenceResponse = await fetch(inferenceAPI);
+
+      if (!inferenceResponse.ok) {
+        throw new Error(
+          `Error getting inference result: ${inferenceResponse.status}`
+        );
+      }
+      const inferenceData = await inferenceResponse.json();
+
+      console.log("sleep");
+      console.log(inferenceResponse);
+
       setButtonText("Recycle Another Item");
-      setCountdown(10);
+
       setUploadResponse(
         <>
           <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-gray-900">
             Item Successfully Recycled
           </p>
-          <pre>{JSON.stringify(responseDetails, null, 2)}</pre>
+          <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
         </>
       ); // Set the response
+
+      setCountdown(10);
     } catch (error) {
       console.error("Error uploading file:", error);
       setUploadResponse((error as Error).message); // Set the error
+      setButtonText("Recycle Another Item");
     } finally {
       setUploading(false);
     }
   };
 
+  //Button Function
   const takePhoto = () => {
+    // If the button text is "Recycle Another Item", reset the state back to its initial (Hide previous photo captured and show the video again)
+    if (buttonText === "Recycle Another Item") {
+      setCountdown(null);
+      setUploading(false);
+      setUploadResponse(null);
+      setButtonText("Recycle Item");
+      setImageUrl(null);
+      return;
+    }
+
+    //Eles if the button is "Recycle Item", it takes the photo and send it to server
     if (videoRef.current && canvasRef.current) {
       const context = canvasRef.current.getContext("2d");
       if (context) {
@@ -79,6 +165,7 @@ const CameraFeed: React.FC = () => {
         canvasRef.current.toBlob((blob) => {
           if (blob) {
             const objectUrl = URL.createObjectURL(blob);
+            setImageUrl(objectUrl); // Set the image URL
             uploadImage(blob);
           }
         }, "image/png");
@@ -86,6 +173,7 @@ const CameraFeed: React.FC = () => {
     }
   };
 
+  //Once countdown reaches 0, redirect back to home.
   useEffect(() => {
     if (countdown === null) return;
     if (countdown <= 0) {
@@ -119,7 +207,11 @@ const CameraFeed: React.FC = () => {
             }
           }
         `}</style>
-        <video ref={videoRef} autoPlay playsInline muted className="mb-4" />
+        {imageUrl ? (
+          <img src={imageUrl} className="mb-4" />
+        ) : (
+          <video ref={videoRef} autoPlay playsInline muted className="mb-4" />
+        )}
         <canvas ref={canvasRef} className="hidden" />
         {countdown !== null && (
           <p className="mt-5 text-center text-3xl leading-9 tracking-tight text-gray-900">
