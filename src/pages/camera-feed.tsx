@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { useRouter } from "next/router";
 
 const CameraFeed: React.FC = () => {
+  const router = useRouter();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [image, setImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [uploadResponse, setUploadResponse] = useState<string | null>(null); // New state variable
+  const [uploadResponse, setUploadResponse] = useState<React.ReactNode | null>(
+    null
+  );
+  const [buttonText, setButtonText] = useState("Recycle Item");
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   useEffect(() => {
     const getVideo = async () => {
@@ -39,14 +43,22 @@ const CameraFeed: React.FC = () => {
         }
       );
       console.log("File upload response:", response);
+
       const responseDetails = {
         ok: response.ok,
-        redirected: response.redirected,
         status: response.status,
-        statusText: response.statusText,
-        type: response.type,
       };
-      setUploadResponse(JSON.stringify(responseDetails)); // Set the response
+
+      setButtonText("Recycle Another Item");
+      setCountdown(10);
+      setUploadResponse(
+        <>
+          <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-gray-900">
+            Item Successfully Recycled
+          </p>
+          <pre>{JSON.stringify(responseDetails, null, 2)}</pre>
+        </>
+      ); // Set the response
     } catch (error) {
       console.error("Error uploading file:", error);
       setUploadResponse((error as Error).message); // Set the error
@@ -67,13 +79,22 @@ const CameraFeed: React.FC = () => {
         canvasRef.current.toBlob((blob) => {
           if (blob) {
             const objectUrl = URL.createObjectURL(blob);
-            setImage(objectUrl);
             uploadImage(blob);
           }
         }, "image/png");
       }
     }
   };
+
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown <= 0) {
+      router.push("/");
+    } else {
+      const timerId = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timerId); // Clean up the timer
+    }
+  }, [countdown]);
 
   return (
     <div className="flex justify-center items-center">
@@ -100,11 +121,16 @@ const CameraFeed: React.FC = () => {
         `}</style>
         <video ref={videoRef} autoPlay playsInline muted className="mb-4" />
         <canvas ref={canvasRef} className="hidden" />
+        {countdown !== null && (
+          <p className="mt-5 text-center text-3xl leading-9 tracking-tight text-gray-900">
+            Returning to Main Screen in {countdown} ...
+          </p>
+        )}
         <button
           onClick={takePhoto}
-          className="mb-4 bg-blue-500 text-white p-2 rounded"
+          className="mt-5 rounded-md bg-blue-500 px-20 py-5 text-2xl font-semibold text-white shadow-sm hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
         >
-          Recycle Item
+          {buttonText}
         </button>
       </div>
     </div>
