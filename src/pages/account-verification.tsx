@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { trpc } from "@/utils/trpc";
 import Layout from "@/components/layout/layout";
 
-const OtpVerification: React.FC = () => {
+const AccountVerification: React.FC = () => {
   const router = useRouter();
   const hello = trpc.hello.useQuery({ text: "client" });
 
@@ -166,4 +166,4 @@ const OtpVerification: React.FC = () => {
   );
 };
 
-export default OtpVerification;
+export default AccountVerification;

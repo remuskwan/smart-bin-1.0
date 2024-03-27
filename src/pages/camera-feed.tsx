@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 
-const CameraFeed: React.FC = () => {
+interface CameraFeedProps {
+  userId?: string; // The '?' makes userId optional
+}
+
+const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
   const router = useRouter();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -11,7 +15,7 @@ const CameraFeed: React.FC = () => {
   );
   const [buttonText, setButtonText] = useState("Recycle Item"); // Toggles between Recycle Item / Recycle Another Item
   const [countdown, setCountdown] = useState<number | null>(null); //Countdown to reset to main screen
-  const [userId, setUserId] = useState("user3"); //To be used for the userID logged in
+  const [userId, setUserId] = useState(propUserId); //To be used for the userID logged in
   const [imageUrl, setImageUrl] = useState<string | null>(null); // State Variable for showing captured image
 
   useEffect(() => {
@@ -56,13 +60,18 @@ const CameraFeed: React.FC = () => {
   const uploadImage = async (imageBlob: Blob) => {
     setUploading(true);
     const id = Math.random().toString(36).substring(2); // Generate a random ID
+    console.log(id);
     try {
       /* 1st API to generate link for upload */
 
       // First, get the pre-signed URL
-      const presignedResponse = await fetch(
-        `http://localhost:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png&user_id=${userId}`
-      );
+
+      const urlToCall = userId
+        ? `http://localhost:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png&user_id=${userId}`
+        : `http://localhost:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png`;
+
+      console.log(urlToCall);
+      const presignedResponse = await fetch(urlToCall);
 
       if (!presignedResponse.ok) {
         throw new Error(
@@ -72,6 +81,8 @@ const CameraFeed: React.FC = () => {
 
       const { url: presignedUrl, objectName: objectName } =
         await presignedResponse.json();
+
+      console.log(objectName);
 
       console.log(presignedUrl);
 
@@ -117,21 +128,32 @@ const CameraFeed: React.FC = () => {
       }
       const inferenceData = await inferenceResponse.json();
 
-      console.log("sleep");
-      console.log(inferenceResponse);
+      // console.log("sleep");
+      console.log(inferenceData);
 
       setButtonText("Recycle Another Item");
 
-      setUploadResponse(
-        <>
-          <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-gray-900">
-            Item Successfully Recycled
-          </p>
-          <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
-        </>
-      ); // Set the response
+      if (inferenceData[0] && inferenceData[0].InferenceResults) {
+        setUploadResponse(
+          <>
+            <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-green-900">
+              Item Successfully Recycled
+            </p>
+            <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
+          </>
+        );
+      } else {
+        setUploadResponse(
+          <>
+            <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-red-900">
+              Unable to infer the object.
+            </p>
+            <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
+          </>
+        );
+      }
 
-      setCountdown(10);
+      // setCountdown(10);
     } catch (error) {
       console.error("Error uploading file:", error);
       setUploadResponse((error as Error).message); // Set the error
