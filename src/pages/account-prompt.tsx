@@ -29,9 +29,24 @@ const AccountPrompt: React.FC = () => {
     return true;
   };
 
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
     if (validatePhoneNumber()) {
-      router.push("/otp-verification");
+      try {
+        const digits = phoneNumber.replace(/\s/g, ""); // Remove spaces
+        const response = await fetch(
+          `http://localhost:3000/api/user?phoneNumber=${digits}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        const userId = data;
+        router.push(`/recycle-item?userId=${userId}`);
+      } catch (error) {
+        console.error("Error:", error);
+        setErrorMessage((error as Error).message);
+      }
     }
   };
 
@@ -47,7 +62,7 @@ const AccountPrompt: React.FC = () => {
     <Layout>
       <div>
         <h1 className="mt-6 text-center text-6xl font-bold leading-9 tracking-tight text-gray-900">
-          OTP Verification
+          Phone Login
         </h1>
         <h2 className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-gray-900">
           Enter your phone number
@@ -81,7 +96,7 @@ const AccountPrompt: React.FC = () => {
           type="button"
           className="mt-10 mx-auto block rounded-md bg-green-500 px-20 py-5 text-2xl font-semibold text-white shadow-sm hover:bg-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-500"
         >
-          Send Code
+          Login
         </button>
         <button
           onClick={handleNoAccount}
