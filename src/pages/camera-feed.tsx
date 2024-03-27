@@ -128,7 +128,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
       }
       const inferenceData = await inferenceResponse.json();
 
-      console.log("sleep");
+      // console.log("sleep");
       console.log(inferenceData);
 
       setButtonText("Recycle Another Item");
