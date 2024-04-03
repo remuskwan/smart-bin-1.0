@@ -1,6 +1,5 @@
 import { useRouter } from "next/router";
 import Layout from "@/components/layout/layout";
-import { useInferenceSubscription } from "@/hooks/subscribe.hook";
 
 export default function Home() {
   const router = useRouter();

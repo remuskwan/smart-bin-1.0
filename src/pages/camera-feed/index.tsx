@@ -206,7 +206,9 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
     }
   }, [countdown]);
 
-  useInferenceSubscription();
+  //Subscribe to the inference result
+  //If null, dont display anything
+  const subscribedResults = useInferenceSubscription();
 
   return (
     <div className="flex justify-center items-center">
