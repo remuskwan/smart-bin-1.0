@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 
 interface CameraFeedProps {
   userId?: string; // The '?' makes userId optional
@@ -230,7 +231,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
           }
         `}</style>
         {imageUrl ? (
-          <img src={imageUrl} className="mb-4" />
+          <Image alt={"Uploaded image"} src={imageUrl} className="mb-4" />
         ) : (
           <video ref={videoRef} autoPlay playsInline muted className="mb-4" />
         )}

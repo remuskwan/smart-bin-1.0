@@ -1,18 +1,15 @@
 import { useRouter } from "next/router";
-import { trpc } from "@/utils/trpc";
 import Layout from "@/components/layout/layout";
+import { useQuerySubscription } from "@/hooks/subscribe.hook";
 
 export default function Home() {
   const router = useRouter();
-  const hello = trpc.hello.useQuery({ text: "client" });
 
   const handleRecycleClick = () => {
     router.push("/account-prompt");
   };
 
-  if (!hello.data) {
-    return <div>Loading...</div>;
-  }
+  useQuerySubscription();
 
   return (
     <Layout>
