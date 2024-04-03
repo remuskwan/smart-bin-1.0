@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
+import sleep from "@/utils/sleep";
+import { useInferenceSubscription } from "@/hooks/subscribe.hook";
 
 interface CameraFeedProps {
   userId?: string; // The '?' makes userId optional
@@ -36,11 +38,6 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
     getVideo();
   }, []);
 
-  //Helper function to sleep for a certain time
-  function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
   //Helper function to reset feed
   const restartVideo = async () => {
     if (videoRef.current) {
@@ -67,9 +64,11 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
 
       // First, get the pre-signed URL
 
-      const urlToCall = userId
-        ? `http://localhost:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png&user_id=${userId}`
-        : `http://localhost:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png`;
+      const urlToCall = `${
+        process.env.EDGE_SERVICES_URL
+      }/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png${
+        userId ? `&user_id=${userId}` : ""
+      }`;
 
       console.log(urlToCall);
       const presignedResponse = await fetch(urlToCall);
@@ -114,7 +113,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
 
       const objectKey = objectName;
       const encodedObjectKey = encodeURIComponent(objectKey);
-      const inferenceAPI = `http://localhost:8000/image/metadata/${encodedObjectKey}`;
+      const inferenceAPI = `${process.env.EDGE_SERVICES_URL}/image/metadata/${encodedObjectKey}`;
 
       console.log("waiting 30 seconds");
       await sleep(30000); // 30 seconds
@@ -206,6 +205,8 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
       return () => clearTimeout(timerId); // Clean up the timer
     }
   }, [countdown]);
+
+  useInferenceSubscription();
 
   return (
     <div className="flex justify-center items-center">

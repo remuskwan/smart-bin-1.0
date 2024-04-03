@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import Layout from "@/components/layout/layout";
-import { useQuerySubscription } from "@/hooks/subscribe.hook";
+import { useInferenceSubscription } from "@/hooks/subscribe.hook";
 
 export default function Home() {
   const router = useRouter();
@@ -8,8 +8,6 @@ export default function Home() {
   const handleRecycleClick = () => {
     router.push("/account-prompt");
   };
-
-  useQuerySubscription();
 
   return (
     <Layout>

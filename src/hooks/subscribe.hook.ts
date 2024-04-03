@@ -1,11 +1,23 @@
 import { useQueryClient } from "@tanstack/react-query";
-import React from "react";
+import { useEffect, useState } from "react";
 
-export const useQuerySubscription = () => {
+interface InferenceResult {
+  ItemType: string;
+  MaterialType: string;
+  Recyclable: boolean;
+}
+
+/**
+ *
+ * @returns InferenceResult | null
+ */
+export const useInferenceSubscription = () => {
+  const [subscribedResults, setSubscribedResults] =
+    useState<InferenceResult | null>(null);
   const queryClient = useQueryClient();
 
-  React.useEffect(() => {
-    const url: string = `ws://${
+  useEffect(() => {
+    const url: string = `${
       process.env.FOG_SERVICES_URL ?? "127.0.0.1:8000"
     }/ws`;
 
@@ -17,13 +29,17 @@ export const useQuerySubscription = () => {
 
     websocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log(data);
-      const queryKey = [...data.entity, data.id].filter(Boolean);
-      queryClient.invalidateQueries({ queryKey });
+      //TODO: utlise react query to update the inference data
+      // const queryKey = [...data.entity, data.id].filter(Boolean);
+      // queryClient.invalidateQueries({ queryKey });
+      //TODO: utilise zod validation to validate the data
+      setSubscribedResults(data);
     };
 
     return () => {
       websocket.close();
     };
   }, [queryClient]);
+
+  return subscribedResults;
 };
