@@ -33,6 +33,7 @@ export const useInferenceSubscription = () => {
       // const queryKey = [...data.entity, data.id].filter(Boolean);
       // queryClient.invalidateQueries({ queryKey });
       //TODO: utilise zod validation to validate the data
+      console.log(data);
       setSubscribedResults(data);
     };
 
