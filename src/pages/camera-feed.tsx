@@ -134,18 +134,29 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
       setButtonText("Recycle Another Item");
 
       if (inferenceData[0] && inferenceData[0].InferenceResults) {
-        setUploadResponse(
-          <>
-            <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-green-900">
-              Item Successfully Recycled
-            </p>
-            <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
-          </>
-        );
+        if (inferenceData[0].InferenceResults.Recyclable === false) {
+          setUploadResponse(
+            <>
+              <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-red-900">
+                Item cannot be recycled
+              </p>
+              <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
+            </>
+          );
+        } else {
+          setUploadResponse(
+            <>
+              <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-green-900">
+                Item Successfully Recycled
+              </p>
+              <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
+            </>
+          );
+        }
       } else {
         setUploadResponse(
           <>
-            <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-red-900">
+            <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-yellow-700">
               Unable to infer the object.
             </p>
             <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
