@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import sleep from "@/utils/sleep";
+import { useInferenceSubscription } from "@/hooks/subscribe.hook";
 
 interface CameraFeedProps {
   userId?: string; // The '?' makes userId optional
@@ -35,11 +37,6 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
     getVideo();
   }, []);
 
-  //Helper function to sleep for a certain time
-  function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
   //Helper function to reset feed
   const restartVideo = async () => {
     if (videoRef.current) {
@@ -66,9 +63,9 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
 
       // First, get the pre-signed URL
 
-      const urlToCall = userId
-        ? `http://localhost:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png&user_id=${userId}`
-        : `http://localhost:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png`;
+      const urlToCall = `http://localhost:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png${
+        userId ? `&user_id=${userId}` : ""
+      }`;
 
       console.log(urlToCall);
       const presignedResponse = await fetch(urlToCall);
@@ -111,58 +108,47 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
 
       /* 3rd API to get the inference result after 30 seconds */
 
-      const objectKey = objectName;
-      const encodedObjectKey = encodeURIComponent(objectKey);
-      const inferenceAPI = `http://localhost:8000/image/metadata/${encodedObjectKey}`;
+      // const objectKey = objectName;
+      // const encodedObjectKey = encodeURIComponent(objectKey);
+      // const inferenceAPI = `http://localhost:8000/image/metadata/${encodedObjectKey}`;
 
-      console.log("waiting 30 seconds");
-      await sleep(30000); // 30 seconds
-      console.log("calling inference");
+      // // console.log("waiting 30 seconds");
+      // // await sleep(30000); // 30 seconds
+      // console.log("calling inference");
 
-      const inferenceResponse = await fetch(inferenceAPI);
+      // const inferenceResponse = await fetch(inferenceAPI);
 
-      if (!inferenceResponse.ok) {
-        throw new Error(
-          `Error getting inference result: ${inferenceResponse.status}`
-        );
-      }
-      const inferenceData = await inferenceResponse.json();
+      // if (!inferenceResponse.ok) {
+      //   throw new Error(
+      //     `Error getting inference result: ${inferenceResponse.status}`
+      //   );
+      // }
+      // const inferenceData = await inferenceResponse.json();
 
-      // console.log("sleep");
-      console.log(inferenceData);
+      // // console.log("sleep");
+      // console.log(inferenceData);
 
-      setButtonText("Recycle Another Item");
+      // setButtonText("Recycle Another Item");
 
-      if (inferenceData[0] && inferenceData[0].InferenceResults) {
-        if (inferenceData[0].InferenceResults.Recyclable === false) {
-          setUploadResponse(
-            <>
-              <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-red-900">
-                Item cannot be recycled
-              </p>
-              <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
-            </>
-          );
-        } else {
-          setUploadResponse(
-            <>
-              <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-green-900">
-                Item Successfully Recycled
-              </p>
-              <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
-            </>
-          );
-        }
-      } else {
-        setUploadResponse(
-          <>
-            <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-yellow-700">
-              Unable to infer the object.
-            </p>
-            <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
-          </>
-        );
-      }
+      // if (inferenceData[0] && inferenceData[0].InferenceResults) {
+      //   setUploadResponse(
+      //     <>
+      //       <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-green-900">
+      //         Item Successfully Recycled
+      //       </p>
+      //       <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
+      //     </>
+      //   );
+      // } else {
+      //   setUploadResponse(
+      //     <>
+      //       <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-red-900">
+      //         Unable to infer the object.
+      //       </p>
+      //       <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
+      //     </>
+      //   );
+      // }
 
       // setCountdown(10);
     } catch (error) {
@@ -217,9 +203,19 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
     }
   }, [countdown]);
 
+  //Subscribe to the inference result
+  //If null, dont display anything
+  const subscribedResults = useInferenceSubscription();
+
   return (
     <div className="flex justify-center items-center">
       <div className="flex flex-col items-center">
+        {/* test code */}
+        <h1 className="text-xl font-bold text-center">
+          {subscribedResults
+            ? `Inference Result: ${JSON.stringify(subscribedResults)}`
+            : "Camera Feed"}
+        </h1>
         {uploading ? (
           <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-12 w-12 mb-4"></div>
         ) : (
@@ -241,7 +237,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
           }
         `}</style>
         {imageUrl ? (
-          <img src={imageUrl} className="mb-4" />
+          <img alt={"Uploaded image"} src={imageUrl} className="mb-4" />
         ) : (
           <video ref={videoRef} autoPlay playsInline muted className="mb-4" />
         )}
