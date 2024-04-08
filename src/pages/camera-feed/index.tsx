@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import Image from "next/image";
 import sleep from "@/utils/sleep";
 import { useInferenceSubscription } from "@/hooks/subscribe.hook";
 
@@ -64,9 +63,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
 
       // First, get the pre-signed URL
 
-      const urlToCall = `${
-        process.env.EDGE_SERVICES_URL
-      }/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png${
+      const urlToCall = `http://localhost:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png${
         userId ? `&user_id=${userId}` : ""
       }`;
 
@@ -111,47 +108,47 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
 
       /* 3rd API to get the inference result after 30 seconds */
 
-      const objectKey = objectName;
-      const encodedObjectKey = encodeURIComponent(objectKey);
-      const inferenceAPI = `${process.env.EDGE_SERVICES_URL}/image/metadata/${encodedObjectKey}`;
+      // const objectKey = objectName;
+      // const encodedObjectKey = encodeURIComponent(objectKey);
+      // const inferenceAPI = `http://localhost:8000/image/metadata/${encodedObjectKey}`;
 
-      console.log("waiting 30 seconds");
-      await sleep(30000); // 30 seconds
-      console.log("calling inference");
+      // // console.log("waiting 30 seconds");
+      // // await sleep(30000); // 30 seconds
+      // console.log("calling inference");
 
-      const inferenceResponse = await fetch(inferenceAPI);
+      // const inferenceResponse = await fetch(inferenceAPI);
 
-      if (!inferenceResponse.ok) {
-        throw new Error(
-          `Error getting inference result: ${inferenceResponse.status}`
-        );
-      }
-      const inferenceData = await inferenceResponse.json();
+      // if (!inferenceResponse.ok) {
+      //   throw new Error(
+      //     `Error getting inference result: ${inferenceResponse.status}`
+      //   );
+      // }
+      // const inferenceData = await inferenceResponse.json();
 
-      // console.log("sleep");
-      console.log(inferenceData);
+      // // console.log("sleep");
+      // console.log(inferenceData);
 
-      setButtonText("Recycle Another Item");
+      // setButtonText("Recycle Another Item");
 
-      if (inferenceData[0] && inferenceData[0].InferenceResults) {
-        setUploadResponse(
-          <>
-            <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-green-900">
-              Item Successfully Recycled
-            </p>
-            <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
-          </>
-        );
-      } else {
-        setUploadResponse(
-          <>
-            <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-red-900">
-              Unable to infer the object.
-            </p>
-            <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
-          </>
-        );
-      }
+      // if (inferenceData[0] && inferenceData[0].InferenceResults) {
+      //   setUploadResponse(
+      //     <>
+      //       <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-green-900">
+      //         Item Successfully Recycled
+      //       </p>
+      //       <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
+      //     </>
+      //   );
+      // } else {
+      //   setUploadResponse(
+      //     <>
+      //       <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-red-900">
+      //         Unable to infer the object.
+      //       </p>
+      //       <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
+      //     </>
+      //   );
+      // }
 
       // setCountdown(10);
     } catch (error) {
@@ -240,7 +237,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
           }
         `}</style>
         {imageUrl ? (
-          <Image alt={"Uploaded image"} src={imageUrl} className="mb-4" />
+          <img alt={"Uploaded image"} src={imageUrl} className="mb-4" />
         ) : (
           <video ref={videoRef} autoPlay playsInline muted className="mb-4" />
         )}
