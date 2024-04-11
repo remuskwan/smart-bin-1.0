@@ -2,9 +2,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 interface InferenceResult {
-  ItemType: string;
-  MaterialType: string;
-  Recyclable: boolean;
+  IsRecyclable: string;
+  RecyclableComponents: [];
+  NonRecyclableComponents: [];
 }
 
 /**

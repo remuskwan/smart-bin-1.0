@@ -54,6 +54,25 @@ const AccountPrompt: React.FC = () => {
     router.push("/recycle-item");
   };
 
+  const handleDigitClick = (digit: number) => {
+    let newPhoneNumber = phoneNumber + digit.toString();
+    newPhoneNumber = newPhoneNumber.replace(/\D/g, "");
+    if (newPhoneNumber.length > 4) {
+      newPhoneNumber =
+        newPhoneNumber.slice(0, 4) + " " + newPhoneNumber.slice(4);
+    }
+    setPhoneNumber(newPhoneNumber.slice(0, 9));
+  };
+
+  const handleBackClick = () => {
+    setPhoneNumber((prevPhoneNumber) => {
+      if (prevPhoneNumber.endsWith(" ")) {
+        return prevPhoneNumber.slice(0, -2);
+      }
+      return prevPhoneNumber.slice(0, -1);
+    });
+  };
+
   if (!hello.data) {
     return <div>Loading...</div>;
   }
@@ -91,6 +110,23 @@ const AccountPrompt: React.FC = () => {
             {errorMessage}
           </p>
         )}
+        <div className="grid grid-cols-3 gap-4 mt-4">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((digit) => (
+            <button
+              key={digit}
+              onClick={() => handleDigitClick(digit)}
+              className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+            >
+              {digit}
+            </button>
+          ))}
+          <button
+            onClick={handleBackClick}
+            className="bg-red-500 text-white font-bold py-2 px-4 rounded"
+          >
+            Back
+          </button>
+        </div>
         <button
           onClick={handleSendCode}
           type="button"
