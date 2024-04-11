@@ -19,6 +19,8 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
   const [countdown, setCountdown] = useState<number | null>(null); //Countdown to reset to main screen
   const [userId, setUserId] = useState(propUserId); //To be used for the userID logged in
   const [imageUrl, setImageUrl] = useState<string | null>(null); // State Variable for showing captured image
+  const [displayMessage, setDisplayMessage] = useState("Camera Feed");
+  const [messageColor, setMessageColor] = useState("black");
 
   useEffect(() => {
     const getVideo = async () => {
@@ -105,52 +107,6 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
         ok: uploadResponse.ok,
         status: uploadResponse.status,
       };
-
-      /* 3rd API to get the inference result after 30 seconds */
-
-      // const objectKey = objectName;
-      // const encodedObjectKey = encodeURIComponent(objectKey);
-      // const inferenceAPI = `http://localhost:8000/image/metadata/${encodedObjectKey}`;
-
-      // // console.log("waiting 30 seconds");
-      // // await sleep(30000); // 30 seconds
-      // console.log("calling inference");
-
-      // const inferenceResponse = await fetch(inferenceAPI);
-
-      // if (!inferenceResponse.ok) {
-      //   throw new Error(
-      //     `Error getting inference result: ${inferenceResponse.status}`
-      //   );
-      // }
-      // const inferenceData = await inferenceResponse.json();
-
-      // // console.log("sleep");
-      // console.log(inferenceData);
-
-      // setButtonText("Recycle Another Item");
-
-      // if (inferenceData[0] && inferenceData[0].InferenceResults) {
-      //   setUploadResponse(
-      //     <>
-      //       <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-green-900">
-      //         Item Successfully Recycled
-      //       </p>
-      //       <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
-      //     </>
-      //   );
-      // } else {
-      //   setUploadResponse(
-      //     <>
-      //       <p className="mt-10 text-center text-4xl font-bold leading-9 tracking-tight text-red-900">
-      //         Unable to infer the object.
-      //       </p>
-      //       <pre>{JSON.stringify(inferenceData, null, 2)}</pre>
-      //     </>
-      //   );
-      // }
-
-      // setCountdown(10);
     } catch (error) {
       console.error("Error uploading file:", error);
       setUploadResponse((error as Error).message); // Set the error
@@ -169,6 +125,8 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
       setUploadResponse(null);
       setButtonText("Recycle Item");
       setImageUrl(null);
+      setDisplayMessage("Camera Feed");
+      setMessageColor("black");
       return;
     }
 
@@ -207,14 +165,37 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
   //If null, dont display anything
   const subscribedResults = useInferenceSubscription();
 
+  useEffect(() => {
+    if (subscribedResults !== null) {
+      setButtonText("Recycle Another Item");
+      setCountdown(10);
+      const { RecyclableComponents, NonRecyclableComponents } =
+        subscribedResults;
+      if (
+        RecyclableComponents.length === 0 &&
+        NonRecyclableComponents.length === 0
+      ) {
+        setDisplayMessage("Item not detected");
+        setMessageColor("red");
+      } else if (
+        RecyclableComponents.length === 0 &&
+        NonRecyclableComponents.length > 0
+      ) {
+        setDisplayMessage(
+          "Item is non-recyclable, it will be sorted into non-recyclable bin."
+        );
+        setMessageColor("green");
+      }
+      // ... other conditions
+    }
+  }, [subscribedResults]);
+
   return (
     <div className="flex justify-center items-center">
       <div className="flex flex-col items-center">
         {/* test code */}
-        <h1 className="text-xl font-bold text-center">
-          {subscribedResults
-            ? `Inference Result: ${JSON.stringify(subscribedResults)}`
-            : "Camera Feed"}
+        <h1 className={`text-xl font-bold text-center text-${messageColor}`}>
+          {displayMessage}
         </h1>
         {uploading ? (
           <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-12 w-12 mb-4"></div>
