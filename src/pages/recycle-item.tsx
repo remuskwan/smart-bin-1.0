@@ -15,6 +15,9 @@ const RecycleItem: React.FC = () => {
 
   return (
     <Layout>
+      <h1 className={`text-xl font-bold text-center`}>
+        Wave hand in front of sensor to open bin
+      </h1>
       <CameraFeed userId={userId as string | undefined} />{" "}
       {/* Pass userId as a prop to CameraFeed only if it exists */}
     </Layout>
