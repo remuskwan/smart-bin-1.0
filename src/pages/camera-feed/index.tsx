@@ -65,7 +65,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
 
       // First, get the pre-signed URL
 
-      const urlToCall = `http://localhost:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png${
+      const urlToCall = `http://192.168.43.47:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png${
         userId ? `&user_id=${userId}` : ""
       }`;
 
