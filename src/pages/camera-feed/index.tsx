@@ -19,7 +19,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
   const [countdown, setCountdown] = useState<number | null>(null); //Countdown to reset to main screen
   const [userId, setUserId] = useState(propUserId); //To be used for the userID logged in
   const [imageUrl, setImageUrl] = useState<string | null>(null); // State Variable for showing captured image
-  const [displayMessage, setDisplayMessage] = useState("Camera Feed");
+  const [displayMessage, setDisplayMessage] = useState("Wave hand at sensor to open bin");
   const [messageColor, setMessageColor] = useState("black");
 
   useEffect(() => {
