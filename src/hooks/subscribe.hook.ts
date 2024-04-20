@@ -2,7 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 interface InferenceResult {
-  IsRecyclable: string;
+  IsRecyclable: number;
   RecyclableComponents: [];
   NonRecyclableComponents: [];
 }
