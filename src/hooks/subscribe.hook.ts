@@ -7,6 +7,18 @@ interface InferenceResult {
   NonRecyclableComponents: [];
 }
 
+interface Component {
+  MaterialType: string;
+  AdditionalInfo: Notes;
+  ItemType: string;
+  Recyclable: boolean;
+}
+
+interface Notes {
+  Notes: string;
+}
+
+
 /**
  *
  * @returns InferenceResult | null
