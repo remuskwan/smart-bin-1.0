@@ -183,7 +183,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
         RecyclableComponents.length === 0 &&
         NonRecyclableComponents.length > 0
       ) {
-        const material = NonRecyclableComponents[0].MateMaterialTyperial;
+        const material = NonRecyclableComponents[0].MaterialType;
         const item = NonRecyclableComponents[0].ItemType;
         //if material is not null then diplay
         if (material && item) {
@@ -201,12 +201,12 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
         RecyclableComponents.length > 0 &&
         NonRecyclableComponents.length === 0
       ) {
-        const material = RecyclableComponents[0].MateMaterialTyperial;
+        const material = RecyclableComponents[0].MaterialType;
         const item = RecyclableComponents[0].ItemType;
         //if material is not null then diplay
         if (material && item) {
           setDisplayMessage(
-            `${item} - ${material} is recyclable, it will be sorted into non-recyclable bin.`
+            `${item} - ${material} is recyclable, it will be sorted into recyclable bin.`
           );
         } else {
           setDisplayMessage(
