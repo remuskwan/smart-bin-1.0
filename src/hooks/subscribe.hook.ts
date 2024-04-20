@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 
 interface InferenceResult {
   IsRecyclable: number;
-  RecyclableComponents: [];
-  NonRecyclableComponents: [];
+  RecyclableComponents: Component[];
+  NonRecyclableComponents: Component[];
 }
 
 interface Component {
