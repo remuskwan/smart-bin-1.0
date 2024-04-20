@@ -169,31 +169,58 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
     if (subscribedResults !== null) {
       setButtonText("Recycle Another Item");
       setCountdown(10);
-      const { RecyclableComponents, NonRecyclableComponents } =
+      const { IsRecyclable, RecyclableComponents, NonRecyclableComponents } =
         subscribedResults;
       if (
+        IsRecyclable === 0 &&
         RecyclableComponents.length === 0 &&
         NonRecyclableComponents.length === 0
       ) {
         setDisplayMessage("Item not detected");
         setMessageColor("red");
       } else if (
+        IsRecyclable === 0 &&
         RecyclableComponents.length === 0 &&
         NonRecyclableComponents.length > 0
       ) {
-        setDisplayMessage(
-          "Item is non-recyclable, it will be sorted into non-recyclable bin."
-        );
+        const material = NonRecyclableComponents[0].MateMaterialTyperial;
+        const item = NonRecyclableComponents[0].ItemType;
+        //if material is not null then diplay
+        if (material && item) {
+          setDisplayMessage(
+            `${item} - ${material} is non-recyclable, it will be sorted into non-recyclable bin.`
+          );
+        } else {
+          setDisplayMessage(
+            `${item} is non-recyclable, it will be sorted into non-recyclable bin.`
+          );
+        }
+        setMessageColor("green");
+      } else if (
+        IsRecyclable === 1 &&
+        RecyclableComponents.length > 0 &&
+        NonRecyclableComponents.length === 0
+      ) {
+        const material = RecyclableComponents[0].MateMaterialTyperial;
+        const item = RecyclableComponents[0].ItemType;
+        //if material is not null then diplay
+        if (material && item) {
+          setDisplayMessage(
+            `${item} - ${material} is recyclable, it will be sorted into non-recyclable bin.`
+          );
+        } else {
+          setDisplayMessage(
+            `${item} is recyclable, it will be sorted into recyclable bin.`
+          );
+        }
         setMessageColor("green");
       }
-      // ... other conditions
     }
   }, [subscribedResults]);
 
   return (
     <div className="flex justify-center items-center">
       <div className="flex flex-col items-center">
-        {/* test code */}
         <h1 className={`text-xl font-bold text-center text-${messageColor}`}>
           {displayMessage}
         </h1>
