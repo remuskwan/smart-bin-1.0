@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import sleep from "@/utils/sleep";
 import { useInferenceSubscription } from "@/hooks/subscribe.hook";
 
 interface CameraFeedProps {
@@ -19,7 +18,9 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
   const [countdown, setCountdown] = useState<number | null>(null); //Countdown to reset to main screen
   const [userId, setUserId] = useState(propUserId); //To be used for the userID logged in
   const [imageUrl, setImageUrl] = useState<string | null>(null); // State Variable for showing captured image
-  const [displayMessage, setDisplayMessage] = useState("Wave hand at sensor to open bin");
+  const [displayMessage, setDisplayMessage] = useState(
+    "Wave hand at sensor to open bin"
+  );
   const [messageColor, setMessageColor] = useState("black");
 
   useEffect(() => {
@@ -65,7 +66,9 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
 
       // First, get the pre-signed URL
 
-      const urlToCall = `http://192.168.43.47:8000/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png${
+      const urlToCall = `${
+        process.env.NEXT_PUBLIC_CLOUD_SERVICES_URL
+      }/image/generate-presigned-url?action=put&file_name=${id}.png&content_type=image/png${
         userId ? `&user_id=${userId}` : ""
       }`;
 

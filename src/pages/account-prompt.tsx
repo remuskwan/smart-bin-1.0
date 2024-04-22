@@ -34,7 +34,7 @@ const AccountPrompt: React.FC = () => {
       try {
         const digits = phoneNumber.replace(/\s/g, ""); // Remove spaces
         const response = await fetch(
-          `http://192.168.43.47:3000/api/user?phoneNumber=${digits}`
+          `${process.env.NEXT_PUBLIC_MOBILE_BACKEND_URL}/api/user?phoneNumber=${digits}`
         );
 
         if (!response.ok) {
