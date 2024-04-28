@@ -29,7 +29,7 @@ export const useInferenceSubscription = () => {
 
   useEffect(() => {
     const url: string = `${
-      process.env.FOG_SERVICES_URL ?? "ws://127.0.0.1:5000"
+      process.env.NEXT_PUBLIC_FOG_SERVICES_URL ?? "ws://127.0.0.1:5000"
     }/ws`;
 
     const websocket = new WebSocket(url);
