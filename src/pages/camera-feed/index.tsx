@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useInferenceSubscription } from "@/hooks/subscribe.hook";
 
 interface CameraFeedProps {
-  userId?: string; // The '?' makes userId optional
+  userId?: string; 
 }
 
 const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
@@ -133,7 +133,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ userId: propUserId }) => {
       return;
     }
 
-    //Eles if the button is "Recycle Item", it takes the photo and send it to server
+    //Else if the button is "Recycle Item", it takes the photo and send it to server
     if (videoRef.current && canvasRef.current) {
       const context = canvasRef.current.getContext("2d");
       if (context) {
