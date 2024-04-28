@@ -18,7 +18,6 @@ interface Notes {
   Notes: string;
 }
 
-
 /**
  *
  * @returns InferenceResult | null
@@ -41,10 +40,6 @@ export const useInferenceSubscription = () => {
 
     websocket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      //TODO: utlise react query to update the inference data
-      // const queryKey = [...data.entity, data.id].filter(Boolean);
-      // queryClient.invalidateQueries({ queryKey });
-      //TODO: utilise zod validation to validate the data
       console.log(data);
       setSubscribedResults(data);
     };
